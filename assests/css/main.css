@@ -36,7 +36,7 @@ hr { display: block; height: 1px; border: 0; border-top: 1px solid #cccccc; marg
 
 input, select { vertical-align: middle; }
 
-@font-face { font-family: 'Dosis Light'; src: url("/fonts/dosis-light-webfont.eot?#iefix") format("embedded-opentype"), url("/fonts/dosis-light-webfont.woff") format("woff"), url("/fonts/dosis-light-webfont.ttf") format("truetype"), url("/fonts/dosis-light-webfont#Dosis Light") format("svg"); }
+
 .cmn-toggle-switch { background: none; display: block; position: relative; overflow: hidden; margin: 0; padding: 0; width: 30px; height: 30px; font-size: 0; text-indent: -9999px; box-shadow: none; border: none; cursor: pointer; -webkit-transition: background 0.2s; -moz-transition: background 0.2s; transition: background 0.2s; }
 .cmn-toggle-switch:focus { outline: none; }
 .cmn-toggle-switch > span { display: block; position: absolute; top: 10px; left: 1px; right: 1px; height: 2px; background: #fff; }
