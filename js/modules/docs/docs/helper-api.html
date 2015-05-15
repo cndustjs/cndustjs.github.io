@@ -1,0 +1,252 @@
+
+<h2 id="dust-helpers">Dust Helpers</h2>
+
+<h3 id="function-definition">Function definition</h3>
+
+<pre><code>dust.helpers.myHelper = function(chunk, context, bodies, params) {
+    /* logic here */
+    return chunk;
+    }
+</code></pre>
+
+<h3 id="parameters">Parameters</h3>
+
+<ul>
+    <li>chunk {Chunk}: An object created by the dust core that holds the currently accumulating output of the template render process.
+        <ul>
+            <li><strong>Instance Functions</strong>
+                <ul>
+                    <li>write - Write out a plain string to the chunk
+                        <ul>
+                            <li><strong>Parameters</strong>
+                                <ul>
+                                    <li>data {String} the text to attach to the chunk</li>
+                                </ul>
+                            </li>
+                            <li><strong>Return Value</strong>
+                                <ul>
+                                    <li>{Chunk} The original chunk with the new string attached</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>render - Evaluate the current chunk
+                        <ul>
+                            <li><strong>Parameters</strong>
+                                <ul>
+                                    <li>body {Function} The dust function that will run against the chunk and context</li>
+                                    <li>context {Context} The data to be used to render this chunk</li>
+                                </ul>
+                            </li>
+                            <li><strong>Return Value</strong>
+                                <ul>
+                                    <li>{String} The output of the body call</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>map - Inserts a new chunk that can be used to asynchronously render or write to it
+                        <ul>
+                            <li><strong>Parameters</strong>
+                                <ul>
+                                    <li>callback {Function} The function that will be called with the new chunk</li>
+                                </ul>
+                            </li>
+                            <li><strong>Return Value</strong>
+                                <ul>
+                                    <li>{Chunk} A copy of this chunk instance in order to further chain function calls on the chunk</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>tap - Puts a filter function into a stack that will run against subsequent chunk.write calls
+                        <ul>
+                            <li><strong>Parameters</strong>
+                                <ul>
+                                    <li>tap {Function} The function that will be pushed on top of the tap stack</li>
+                                </ul>
+                            </li>
+                            <li><strong>Return Value</strong>
+                                <ul>
+                                    <li>{Chunk} The chunk instance</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>untap - Pops the function on the top of the stack that was pushed from chunk.tap
+                        <ul>
+                            <li><strong>Return Value</strong>
+                                <ul>
+                                    <li>{Chunk} The chunk instance</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>setError - set an error on the chunk and stop rendering
+                        <ul>
+                            <li><strong>Parameters</strong>
+                                <ul>
+                                    <li>
+                                        <table>
+                                            <tbody>
+                                            <tr>
+                                                <td>error {String</td>
+                                                <td>Error} The error object to put on the chunk</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><strong>Return Value</strong>
+                                <ul>
+                                    <li>{Chunk} The chunk instance</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Instance Attributes</strong>
+                <ul>
+                    <li>flushable {Boolean} - Whether the chunk is ready to be output and hand itself off to the next chunk in the chain</li>
+                    <li>data {Array} - The strings to output</li>
+                    <li>
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td>error {String</td>
+                                <td>Error} - Any error that was set during the render process</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li>next {Chunk} - The next chunk in the render chain</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>context {Context}: An object created by the dust core that holds the current context stack.  This could be your base context when rendering the template, but can change if you are in a context change <code>{#newContext}</code>
+        <ul>
+            <li><strong>Instance Functions</strong>
+                <ul>
+                    <li>get - Get a value from the data out of a key name
+                        <ul>
+                            <li><strong>Parameters</strong>
+                                <ul>
+                                    <li>path {String} The dot seperated key identifier</li>
+                                    <li>current {Boolean} If it should search in parent contexts.  false/undefined means it will search in parent contexts, while true will only search the current context</li>
+                                </ul>
+                            </li>
+                            <li><strong>Return Value</strong><br />
+                                * {*} The value in the context for that key</li>
+                        </ul>
+                    </li>
+                    <li>getTemplateName - Get the name of the template that this context was used for
+                        <ul>
+                            <li><strong>Return Value</strong>
+                                <ul>
+                                    <li>{String} the name of the template</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>push - Add a new value to the Context stack
+                        <ul>
+                            <li><strong>Parameters</strong>
+                                <ul>
+                                    <li>val {*} a value to push onto the top of the stack</li>
+                                </ul>
+                            </li>
+                            <li><strong>Return Value</strong>
+                                <ul>
+                                    <li>{Context} a new Context with <code>val</code> on the top of its stack</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>pop - Remove the top of the stack
+                        <ul>
+                            <li><strong>Return Value</strong>
+                                <ul>
+                                    <li>{*} The value on top of the stack</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>resolve - Evaluate a Dust template string using this context
+                        <ul>
+                            <li><strong>Parameters</strong>
+                                <ul>
+                                    <li>body {Function} a compiled Dust reference to evaluate</li>
+                                </ul>
+                            </li>
+                            <li><strong>Return Value</strong>
+                                <ul>
+                                    <li>{String} the resolved reference</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Instance Attributes</strong>
+                <ul>
+                    <li>stack {Stack} - A filtered view of the json context passed to dust.render, dust.stream, or dust.renderSource</li>
+                    <li>global {Object} - Contains any data that you want to access on this instance</li>
+                    <li>blocks {Array} - A list of objects that which hold the inline blocks defined in a template.  The objects are keyed by the name of the inline block and the values are the compiled javascript functions of their body</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>bodies: Holds any body sections nested within the helper. For example, the <code>{:else}</code> body in an exists check
+        <ul>
+            <li><strong>Instance Attributes</strong>
+                <ul>
+                    <li>block {Function} - The javascript function attached to the first section of the helper</li>
+                    <li><code>*</code> {Function} - The javascript function attached to the subsequent sections of the helper <code>e.g. {:else} -&gt; bodies['else']</code></li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>params: An object that holds all the parameters passed when calling the custom helper</li>
+    <li><strong>Return Value</strong>
+        <ul>
+            <li>{Chunk} The chunk object that was passed in so that chunk function calls can be chained.  It is important to not forget to return this, or your template will cease rendering early</li>
+        </ul>
+    </li>
+</ul>
+
+<h3 id="example">Example</h3>
+<p>In this example, we will write a helper that will add a period to the end or beginning of the body depending on a parameter.</p>
+
+<h4 id="javascript-function-definition-for-a-helper">JavaScript function definition for a helper</h4>
+
+<pre><code>dust.helpers.period = function(chunk, context, bodies, params) {
+    var location = params.location,
+    body = bodies.block;
+    if (location === 'start') {
+    chunk.write('.');
+    chunk.render(body, context);
+    } else if (location === 'end') {
+    chunk.render(body, context);
+    chunk.write('.');
+    } else {
+    dust.log('WARN', 'missing parameter "location" in period helper');
+    }
+    return chunk;
+    };
+</code></pre>
+
+<h4 id="helper-call-in-the-template">Helper call in the template:</h4>
+
+<pre><code class="language-html">{@period location="end"}
+    Hello World
+    {/period}
+    {!-- outputs "Hello World." --!}
+
+    {@period location="start"}
+    Hello World
+    {/period}
+    {!-- outputs ".Hello World" --!}
+</code></pre>

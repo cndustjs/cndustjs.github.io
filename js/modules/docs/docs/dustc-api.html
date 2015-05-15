@@ -1,0 +1,68 @@
+
+<h1 id="dustc-post-26">dustc post-2.6</h1>
+
+<p>For Dust 2.6, the compiler has been rewritten to act more like a Linux binary. You can pipe in and out of the compiler, and compile whole directory trees at once.</p>
+
+<pre><code>$ dustc [options] [path1 [path2 path3...]]
+</code></pre>
+
+<p>For example, to compile all templates in the directory <code>tmpl</code> to <code>output.js</code>:</p>
+
+<pre><code>$ dustc tmpl/**/*.dust -o output.js
+    # Or using redirection
+    $ dustc tmpl/**/*.dust &gt; output.js
+</code></pre>
+
+<p>To compile a few templates to AMD modules in-place:</p>
+
+<pre><code>$ dustc -as tmpl/one.dust tmpl/two.dust
+</code></pre>
+
+<h3 id="n---name"><code>-n, --name</code></h3>
+
+<p>Register the compiled template under this name in the Dust cache. This is the name that you’ll pass to <code>dust.render()</code> to render the template. If you’re compiling more than one template, this parameter has no effect.</p>
+
+<h3 id="o---output"><code>-o, --output</code></h3>
+
+<p>Collect all compiled template output in this file. If you use AMD registration, the file will contain multiple named AMD modules that will all be available once you require the file.</p>
+
+<h3 id="s---split"><code>-s, --split</code></h3>
+
+<p>Create one output file for every input file. Output files will end in <code>.js</code> and have the same filename as the input file. Output files register themselves with Dust using their path. For example, compiling <code>tmpl/foo/bar.dust</code> would create <code>tmpl/foo/bar.js</code> that registers itself as <code>tmpl/foo/bar</code>.</p>
+
+<p><strong>Note:</strong> Names are always created with forward slashes for compatibility with AMD loaders, even if you run dustc on Windows.</p>
+
+<h3 id="pwd"><code>--pwd</code></h3>
+
+<p>Strips a prefix from all generated template names. For example, if you tried to compile all templates inside <code>app/lib/tmpl/</code> but you wanted to refer to them as <code>tmpl/foo</code>, you could pass <code>--pwd=app/lib</code></p>
+
+<h3 id="w---whitespace"><code>-w, --whitespace</code></h3>
+
+<p>Toggles <code>dust.config.whitespace</code>. If true, the template will be compiled such that whitespace will be preserved in the rendered output.</p>
+
+<h3 id="a---amd"><code>-a, --amd</code></h3>
+
+<p>Compiles templates as AMD modules.</p>
+
+<h3 id="cjs"><code>--cjs</code></h3>
+
+<p>Compiles templates as CommonJS modules. (Dust &gt;= 2.7.0)</p>
+
+<h3 id="watch"><code>--watch</code></h3>
+
+<p>Reruns the compilation if any of the watched files change. (If you add a new file, you must restart the watch.)</p>
+
+<h1 id="dustc-pre-26">dustc pre-2.6</h1>
+
+<pre><code>$ dustc [{-n|--name}={template_name}] {inputfilename} [{outputfilename}]
+</code></pre>
+
+<p>For example, to compile a template on the command line and have it registered under the same name as the source file:</p>
+
+<pre><code>$ dustc input.tl template.html
+</code></pre>
+
+<p>You can customize the name under which the template is registered by using the “name” option:</p>
+
+<pre><code>$ dustc --name=mytemplate input.tl template.html
+</code></pre>
