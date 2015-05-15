@@ -3,7 +3,7 @@ define(['./guides','./docs'],function(GuidesView,DocsView){
             Page : Backbone.Router.extend({
                 routes: {
 
-                    "/":"index",
+                    "":"index",
                     "guides/:tpl":"guides",
                     "docs/:tpl":"docs"
 
