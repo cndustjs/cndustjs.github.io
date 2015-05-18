@@ -9,15 +9,15 @@
     <link rel="icon" type="image/png" href="http://www.dustjs.com/images/favicon.png">
     <link rel="stylesheet" href="assests/css/main.css">
 
-    <script src="http://www.dustjs.com/bower_components/webcomponentsjs/webcomponents.min.js"></script>
+    <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script>
     <script src="http://pronebel.github.io/public/assets/js/jquery.js"></script>
 
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <link rel="import" href="http://www.dustjs.com/bower_components/polymer/polymer.html">
-    <link rel="import" href="http://www.dustjs.com/bower_components/dust-demo/components/polymer/dust-demo.html">
+    <link rel="import" href="bower_components/polymer/polymer.html">
+    <link rel="import" href="bower_components/dust-demo/components/polymer/dust-demo.html">
 
     <style>
         #content{min-height: 600px;}
@@ -38,10 +38,10 @@
         <ul class="main-nav" id="J_menu">
             <li><a href="#guides/setup">安装</a></li>
             <li>
-                Guides
+                指南
                 <ul>
-                    <li><a href="#guides/getting-started">Getting Started</a></li>
-                    <li><a href="#guides/rendering">Compiling and Rendering</a></li>
+                    <li><a href="#guides/getting-started">准备</a></li>
+                    <li><a href="#guides/rendering">编译和渲染</a></li>
                     <li><a href="#guides/contexts">Contexts</a></li>
                     <li><a href="#guides/context-helpers">Context Helpers</a></li>
                     <li><a href="#guides/dust-helpers">Dust Helpers</a></li>
@@ -54,7 +54,7 @@
                 </ul>
             </li>
             <li>
-                Documentation
+                文档
                 <ul>
                     <li><a href="#docs/syntax">Dust Syntax</a></li>
                     <li><a href="#docs/api">Dust API</a></li>
@@ -91,7 +91,7 @@
     })
 </script>
 
-<script src="js/lib/require/dust-full.js"></script>
+
 <script src="js/lib/require/require.js"></script>
 <script src="js/lib/underscore.js"></script>
 <script src="js/lib/backbone/backbone.js"></script>
@@ -100,8 +100,7 @@
     require.config({
 
         paths: {
-            text: 'js/lib/require/text',
-            dustc: 'js/lib/require/dustc'
+            text: 'js/lib/require/text'
         },
         waitSeconds:25
 

@@ -1,110 +1,113 @@
-<p>Welcome to Dust! The exercises in this tutorial will help you get familiar with Dust’s core features and syntax. To complete the exercises, edit the “Dust Template” or “Data” so that the “Output” matches the “Expected Output”.</p>
+<p> 下面的教程练习将帮助你熟悉Dust的核心属性及语法。完成下面的练习，编辑 “Dust Template” 或者 “Data”区域，即可以看到 “Output”与 “Expected Output”的比较.</p>
 
-<h2 id="writing-templates">Writing Templates</h2>
+<h2 id="writing-templates">编写模板</h2>
 
-<h3 id="references">References</h3>
-<p>The first thing to learn is how to reference your data using Dust. You will learn below how to tell Dust what data to use, but for now the exercises will handle that for you. A reference in Dust is written by surrounding a JSON key with a single set of curly braces (<code>{key}</code>). In the introductory exercise below, we welcome you to Dust, but the greeting is a bit too formal.</p>
+<h3 id="references">引用数据</h3>
+<p>第一件要学的是如果在dust模板中引用你的数据，你将在下面学到如何使用数据渲染模板。在dust中引用的数据是以JSON的格式存在的。以下是基础入门的练习。</p>
 
 <dust-tutorial templatename="intro">
     <dust-demo-template showtemplatename="true">Welcome to Dust, {name}.</dust-demo-template>
     <dust-demo-json>{
-        "name": "friend",
-        "familiarName": "pal"
-        }</dust-demo-json>
+    "name": "friend",
+    "familiarName": "pal"
+}</dust-demo-json>
     <dust-tutorial-answer>Welcome to Dust, pal.</dust-tutorial-answer>
 </dust-tutorial>
 
-<h3 id="references-with-dot-notation-aka-paths">References with dot-notation (AKA paths)</h3>
-<p>If you need to reference values within nested objects, you can use dot-notation the same way you would in JavaScript.</p>
+<h3 id="references-with-dot-notation-aka-paths">用点表达式的方式引用属性 (AKA paths)</h3>
+<p>如果你需要在嵌套对象中引用值，你可以用点表达式的方式引用。</p>
 
 <dust-tutorial templatename="dot_notation">
     <dust-demo-template showtemplatename="true">Hello, {name}</dust-demo-template>
     <dust-demo-json>{
-        "name": "Ned",
-        "amigo": {
+    "name": "Ned",
+    "amigo": {
         "name": "Dusty"
-        }
-        }</dust-demo-json>
+    }
+}</dust-demo-json>
     <dust-tutorial-answer>Hello, Dusty</dust-tutorial-answer>
 </dust-tutorial>
 
-<p>Learn more about <a href="/docs/syntax#reference">Dust References</a>.</p>
+<p>了解更多的<a href="#docs/syntax">Dust语法</a>.</p>
 
-<h3 id="conditionals">Conditionals</h3>
-<p>Dust can include content conditionally with <code>?</code> (exists) and <code>^</code> (not exists). Given a reference, the conditionals check if the value of that reference is truthy or falsy, then output the content accordingly. See the <a href="/docs/syntax#exists">conditionals syntax documentation</a> for more information on what is truthy and what is falsy in Dust.</p>
+<h3 id="conditionals">条件表达式</h3>
+<p>Dust可以使用 <code>?</code> (值存在) 和 <code>^</code> (值不存在)的方式判断值引用.
+    给出一个引用，条件表达式将检查指定的值是为真或者为假，然后再输出相应的值。</p>
 
 <dust-tutorial templatename="conditional">
     <dust-demo-template showtemplatename="true">&lt;input type="checkbox"{^isSelected} selected{/isSelected}&gt;</dust-demo-template>
     <dust-demo-json>{
-        isSelected: true
-        }</dust-demo-json>
+    isSelected: true
+}</dust-demo-json>
     <dust-tutorial-answer>&lt;input type="checkbox" selected&gt;</dust-tutorial-answer>
 </dust-tutorial>
 
-<p>You can also use an <code>{:else}</code> statement with conditionals.</p>
+<p>你也可以使用 <code>{:else}</code>表达式分支.</p>
 
 <dust-tutorial templatename="else">
     <dust-demo-template showtemplatename="true">&lt;li class="result{?isPrimary} primary{:else} {/isPrimary}"&gt;</dust-demo-template>
     <dust-demo-json>{
-        isPrimary: false
-        }</dust-demo-json>
+    isPrimary: false
+}</dust-demo-json>
     <dust-tutorial-answer>&lt;li class="result secondary"&gt;</dust-tutorial-answer>
 </dust-tutorial>
 
-<h3 id="sections">Sections</h3>
+<h3 id="sections">Sections块的概念</h3>
 
-<p>Sections, which work a lot like conditionals, are a useful alternative to the sometimes verbose dot-notation. A section is used to switch the context in which Dust looks up references.</p>
+<p>Sections块, 有点类似条件表达式，在表达式内部引用当前块对象的属性时，可以得到简化.</p>
 
-<p>In the example below, the section begins with <code>{#friend}</code> and ends with <code>{/friend}</code>. While inside of the <code>{#friend}</code> section, Dust looks for references inside of the <code>friend</code> object. That’s why the output is <code>Hello, Jacob</code> instead of <code>Hello, John</code>.</p>
+<p>在下面的例子中，section表达式以 <code>{#friend}</code>开始，以 <code>{/friend}</code>结束.在<code>{#friend}</code>的块级内部，
+    Dust是在 <code>friend</code> 对象的内部进行查找的.所以output的输出是 <code>Hello, Jacob</code>，而不是<code>Hello, John</code>.
+</p>
+
 
 <dust-tutorial templatename="section">
     <dust-demo-template showtemplatename="true">Hello, {#friend}{name}{/friend}.</dust-demo-template>
     <dust-demo-json>{
-        "name": "John",
-        "nickname": "Jingleheimer Schmidt",
-        "friend": {
+    "name": "John",
+    "nickname": "Jingleheimer Schmidt",
+    "friend": {
         "name": "Jacob"
-        }
-        }</dust-demo-json>
+    }
+}</dust-demo-json>
     <dust-tutorial-answer>Hello, John Jacob.</dust-tutorial-answer>
 </dust-tutorial>
-
-<p>However, if Dust doesn’t find a reference in a given context, it will look into all of the data’s parent contexts before it gives up.</p>
+<p>Dust 在当前的块级对象中找不到值引用时，会到当前块级对象的上层对象中匹配查找</p>
 
 <dust-tutorial templatename="reference_lookup">
     <dust-demo-template showtemplatename="true">Hello, {name} {#friend}{name} [[ PUT YOUR ANSWER HERE ]]{/friend}. That's my name, too.</dust-demo-template>
     <dust-demo-json>{
-        "name": "John",
-        "nickname": "Jingleheimer Schmidt",
-        "friend": {
+    "name": "John",
+    "nickname": "Jingleheimer Schmidt",
+    "friend": {
         "name": "Jacob"
-        }
-        }</dust-demo-json>
+    }
+}</dust-demo-json>
     <dust-tutorial-answer>Hello, John Jacob Jingleheimer Schmidt. That's my name, too.</dust-tutorial-answer>
 </dust-tutorial>
 
-<h3 id="looping">Looping</h3>
+<h3 id="looping">循环</h3>
 
-<p>Looping in Dust is easy. In fact, a loop is just a section where the reference of the section is an array.</p>
+<p>Dust中的循环输出很容易。事实上，一个循环只是section方式的引用对象是数组的一个特例.</p>
 
-<p>You can use <code>{.}</code> to reference the current item in the loop. Below is an example of an array of strings.</p>
+<p>你可以使用<code>{.}</code>去代表当前对象的引用. 下面是一个字符数组的处理的例子.</p>
 
 <dust-tutorial templatename="loop">
     <dust-demo-template showtemplatename="true">&lt;ul&gt;
         {#languages}&lt;li&gt;[[ YOUR CODE GOES HERE ]]&lt;/li&gt;{/languages}
         &lt;/ul&gt;</dust-demo-template>
     <dust-demo-json>{
-        "languages": [
+    "languages": [
         "HTML",
         "CSS",
         "JavaScript",
         "Dust"
-        ]
-        }</dust-demo-json>
+    ]
+}</dust-demo-json>
     <dust-tutorial-answer>&lt;ul&gt;&lt;li&gt;HTML&lt;/li&gt;&lt;li&gt;CSS&lt;/li&gt;&lt;li&gt;JavaScript&lt;/li&gt;&lt;li&gt;Dust&lt;/li&gt;&lt;/ul&gt;</dust-tutorial-answer>
 </dust-tutorial>
 
-<p>You can use key value references when the array contains objects. Below is an example of an array of objects (with an array inside).</p>
+<p>当前数组的子项是一个对象时，可以使用key-value的方式引用数值.下面一个这样的例子</p>
 
 <dust-tutorial templatename="loop_references">
     <dust-demo-template showtemplatename="true">&lt;ul&gt;
@@ -113,26 +116,26 @@
         {/languages}
         &lt;/ul&gt;</dust-demo-template>
     <dust-demo-json>{
-        "languages": [
+    "languages": [
         {
-        "name": "HTML",
-        "creators": ["Tim Berners Lee"]
+            "name": "HTML",
+            "creators": ["Tim Berners Lee"]
         },
         {
-        "name": "CSS",
-        "creators": ["Håkon Wium Lie", "Bert Bos"]
+            "name": "CSS",
+            "creators": ["Håkon Wium Lie", "Bert Bos"]
         },
         {
-        "name": "JavaScript",
-        "creators": ["Brendan Eich"]
+            "name": "JavaScript",
+            "creators": ["Brendan Eich"]
         },
         {
-        "name": "Dust",
-        "creators": ["akdubya"]
+            "name": "Dust",
+            "creators": ["akdubya"]
         }
-        ]
-        }</dust-demo-json>
+    ]
+}</dust-demo-json>
     <dust-tutorial-answer>&lt;ul&gt;&lt;li&gt;HTML by Tim Berners Lee&lt;/li&gt;&lt;li&gt;CSS by Håkon Wium Lie and Bert Bos&lt;/li&gt;&lt;li&gt;JavaScript by Brendan Eich&lt;/li&gt;&lt;li&gt;Dust by akdubya&lt;/li&gt;&lt;/ul&gt;</dust-tutorial-answer>
 </dust-tutorial>
 
-<p>Now that you know the basics of writing Dust templates, continue on to learn how to <a href="/guides/rendering">compile and render your templates</a>!</p>
+<p>现在你基本熟悉了Dust模板的实现，可以继续学习<a href="#guides/rendering">编译和渲染模板</a>!</p>
