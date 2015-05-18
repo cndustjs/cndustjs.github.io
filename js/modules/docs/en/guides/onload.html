@@ -1,0 +1,60 @@
+
+<p>When you try to render a template or include a partial, Dust looks in its cache for the template’s name. If the template isn’t there, rendering will fail and Dust will throw an error.</p>
+
+<p>You can tell Dust how to <strong>load templates</strong> that aren’t in the cache by creating a function called <code>dust.onLoad</code>. When a template is requested and not found in the cache, Dust will call this function and try to load it.</p>
+
+<pre><code class="language-js">dust.onLoad = function(templateName, [options], callback) {
+    // `templateName` is the name of the template requested by dust.render / dust.stream
+    // or via a partial include, like {&gt; "hello-world" /}
+    // `options` can be set as part of a Context. They will be explored later
+    // `callback` is a Node-like callback that takes (err, data)
+    }
+</code></pre>
+
+<h2 id="callback">Callback</h2>
+
+<p>The callback can be used in several different ways depending on how you want to load and register your template.</p>
+
+<h3 id="uncompiled-template-source">Uncompiled Template Source</h3>
+
+<p>You can load an uncompiled template and pass it to the callback. Dust will compile the template and register it under <code>templateName</code>.</p>
+
+<pre><code class="language-js">fs.readFile(templateName + '.dust', { encoding: 'utf8' }, function(err, data) {
+    callback(null, data);
+    });
+</code></pre>
+
+<h3 id="precompiled-template">Precompiled Template</h3>
+
+<p>If the template is precompiled, you can load it yourself so that time isn’t spent compiling. When you call the callback, Dust will look in the cache a second time for the template that you registered.</p>
+
+<pre><code class="language-js">// pre-2.7: load a compiled Javascript file
+    fs.readFile(templateName + '.js', { encoding: 'utf8' }, function(err, data) {
+    dust.loadSource(data);
+    callback();
+    });
+</code></pre>
+
+<pre><code class="language-js">// 2.7: you can compile templates as CommonJS modules
+    require('./views/' + templateName)(dust);
+    callback();
+</code></pre>
+
+<h3 id="loading-a-different-template-dust-271">Loading a Different Template (Dust 2.7.1)</h3>
+
+<p>In some cases, you may not actually want to load the template with the specified name, but instead use that name to find a different template to load. For example, if you had templates <code>hello_en</code> and <code>hello_fr</code>, you could respect a user’s language settings.</p>
+
+<p>If you pass a compiled template function to the callback, that template will be rendered instead of the originally-requested template. The new template will <strong>not</strong> be registered under the original name.</p>
+
+<p><code>options</code> can be set as part of the context passed to Dust to render. For information on options, see <a href="/guides/contexts/#context-options-dust-271">Context Options</a>.</p>
+
+<pre><code class="language-js">dust.onLoad = function(templateName, options, callback) {
+    // templateName is 'hello'
+    var name = templateName + '_' + options.lang;
+    // name is 'hello_fr'
+    // Look in the cache for the template, and load it if isn't there
+    var tmpl = dust.cache[name] || require('./' + name)(dust);
+    // The template is cached under 'hello_fr' for next time
+    callback(null, tmpl);
+    };
+</code></pre>

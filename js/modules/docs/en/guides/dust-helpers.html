@@ -1,0 +1,225 @@
+
+<h1 id="using-helpers">Using Helpers</h1>
+
+<p>Dust helpers extend the templating language in the same way as context helpers. Unlike context helpers, however, Dust helpers are global and can be used in any template without including them in the context.</p>
+
+<p>Helpers look like <code>{@helper}</code>.</p>
+
+<h2 id="installing-helpers">Installing Helpers</h2>
+
+<p>Officially supported helpers are bundled separately in the <code>dustjs-helpers</code> library. After the dustjs-linkedin library is loaded, follow the same instructions in the <a href="/guides/setup/">Setup guide</a> to install <code>dustjs-helpers</code>.</p>
+
+<p>If you are using Node.js, then you can require the helpers directly and get back a Dust instance with the helpers preloaded:</p>
+
+<pre><code>var dust = require('dustjs-helpers');
+</code></pre>
+
+<h2 id="logic-helpers">Logic Helpers</h2>
+
+<p>The helpers library comes with the following logic helpers:</p>
+
+<ul>
+    <li><code>{@eq}</code>: strictly equal to</li>
+    <li><code>{@ne}</code>: not strictly equal to</li>
+    <li><code>{@gt}</code>: greater than</li>
+    <li><code>{@lt}</code>: less than</li>
+    <li><code>{@gte}</code>: greater than or equal to</li>
+    <li><code>{@lte}</code>: less than or equal to</li>
+</ul>
+
+<p>These helpers allow you to print content if one value compared in a certain way to another value is true. For each helper, you specify the first value with the <code>key</code> attribute and the second value with the <code>value</code> attribute. Both <code>key</code> and <code>value</code> can point to a reference or a literal value. Wrap literal values in quotes and leave references un-quoted.</p>
+
+<p>In the following example, the first helper looks for the value of <code>level</code> in the underlying JSON data and checks if it is equal to the literal string “master”. The second checks to see if the value for the <code>age</code> reference is greater than the value of the <code>starfighterRentalAge</code> reference.</p>
+
+<dust-demo templatename="helpers_logic">
+    <dust-demo-template showtemplatename="true">
+        {@eq key=level value="master"}You are no longer a Padawan. {/eq}
+        {@gt key=age value=starfighterRentalAge}Rent a Starfighter!{/gt}
+    </dust-demo-template>
+    <dust-demo-json>
+        {
+        "level": "master",
+        "age": 27,
+        "starfighterRentalAge": 25
+        }
+    </dust-demo-json>
+</dust-demo>
+
+<h3 id="else">Else</h3>
+
+<p>For all logic helpers, you can create an <code>{:else}</code> block that will render if the test is false.</p>
+
+<dust-demo templatename="helpers_else">
+    <dust-demo-template showtemplatename="true">
+        {@eq key=level value="master"}
+        You are no longer a Padawan.
+        {:else}
+        You have much to learn, young Padawan.
+        {/eq}
+    </dust-demo-template>
+    <dust-demo-json>
+        {
+        "level": "padawan"
+        }
+    </dust-demo-json>
+</dust-demo>
+
+<h3 id="casting">Casting</h3>
+
+<p>If you are comparing a literal value to one that you know is not a string (e.g. a number or a boolean), make sure to specify the <code>type</code> attribute so Dust knows how to cast the literal value.</p>
+
+<dust-demo templatename="helpers_casting">
+    <dust-demo-template showtemplatename="true">
+        {@eq key=bilbosAge value="50" type="number"}Looking nifty at fifty, Bilbo! {/eq}
+        {@gt key=gandalfsAge value="10000"}Gandalf is really old...{/gt}
+    </dust-demo-template>
+    <dust-demo-json>
+        {
+        "bilbosAge": 50,
+        "gandalfsAge": 12345
+        }
+    </dust-demo-json>
+</dust-demo>
+
+<h2 id="separator-helper">Separator Helper</h2>
+
+<p>Iterating over lists sometimes requires slightly different treatment of the first or last items in the list. The <code>{@sep}</code> helper and its companions <code>{@first}</code> and <code>{@last}</code> provide this functionality.</p>
+
+<ul>
+    <li><code>{@sep}</code>: Output for every loop iteration except the last</li>
+    <li><code>{@first}</code>: Output only on the first loop iteration</li>
+    <li><code>{@last}</code>: Only output on the last loop iteration</li>
+</ul>
+
+<dust-demo templatename="grammatical-correctness">
+    <dust-demo-template showtemplatename="true">
+        {#guests}
+        {@first}Hello {/first}
+        {@last}and {/last}
+        {.}{@sep}, {/sep}
+        {@last}!{/last}
+        {/guests}
+    </dust-demo-template>
+    <dust-demo-json>
+        {
+        "guests": ["Alice", "Bob", "Charlie"]
+        }
+    </dust-demo-json>
+</dust-demo>
+
+<h2 id="select-helper">Select Helper</h2>
+
+<p>The <code>@select</code> helper can be nested around the other logic helpers to form a <code>switch</code>-like structure, allowing you to take one action based on multiple comparisons with a single key value. You move the <code>key</code> attribute into the <code>@select</code> helper and set only a <code>value</code> attribute for each logic helper inside the <code>@select</code>.</p>
+
+<p>You can specify what to do if none of the conditions are true using a <code>@none</code> helper in the <code>@select</code>. Its opposite, the <code>@any</code> helper, is run if any of the conditions are true, in addition to those true conditions.</p>
+
+<p>When a true logic helper condition is found in the <code>@select</code>, Dust executes the condition’s body and skips the rest of the truth tests. <code>{@any}</code> and <code>{@none}</code> tests are always evaluated, no matter where they occur.</p>
+
+<dust-demo templatename="helpers_select">
+    <dust-demo-template showtemplatename="true">
+        &lt;span class="
+        {@select key=testEnabled}
+        {@any}test-enabled {/any}
+        {@none}test-disabled {/none}
+        {@eq value="puppies"}test-puppies{/eq}
+        {@eq value="bunnies"}test-bunnies{/eq}
+        {/select}
+        "&gt;
+    </dust-demo-template>
+    <dust-demo-json>
+        {
+        "testEnabled": "bunnies"
+        }
+    </dust-demo-json>
+</dust-demo>
+
+<p><em>Note that the <code>@default</code> helper has been</em> <strong><em>deprecated</em></strong> <em>as of Dust Helpers version 1.6.0.</em> This helper was similar to <code>@none</code>, except there could only be one instance per <code>@select</code>, and it needed to be placed after all logic helpers to ensure that all previous comparisons were false.</p>
+
+<h2 id="math-helper">Math Helper</h2>
+
+<p>Another handy helper is the <code>@math</code> helper. It allows you to take different courses of action based on the result of a mathematical expression. You provide it the lefthand operand using the <code>key</code> attribute, the operation to perform using the <code>method</code> attribute, and the righthand operand using the <code>operand</code> attribute. Then you can nest logical operators within the <code>@math</code> tag to test the result of the <code>@math</code> helper. For example, we can combine a loop’s <code>$idx</code> with the <code>@math</code> helper to add a class to every other item in a list:</p>
+
+<dust-demo templatename="helpers_math">
+    <dust-demo-template showtemplatename="true">
+        &lt;ul&gt;
+        {#flavors}
+        &lt;li
+        {@math key=$idx method="mod" operand="2"}
+        {@eq value="0" type="number"} class="alt-row"{/eq}
+        {/math}&gt;
+        {name}
+        &lt;/li&gt;
+        {/flavors}
+        &lt;/ul&gt;
+    </dust-demo-template>
+    <dust-demo-json>
+        {
+        "flavors": [
+        { "name": "red bean" },
+        { "name": "green tea" },
+        { "name": "mango" },
+        { "name": "peanut" }
+        ]
+        }
+    </dust-demo-json>
+</dust-demo>
+
+<p>A full list of values that the <code>method</code> attribute can take is found in the <a href="/docs/helpers-api/">Helpers API documentation</a>.</p>
+
+<h3 id="printing-the-result">Printing the Result</h3>
+
+<p>To simply output the result of the mathematical expression, use the <code>@math</code> helper as a self-closing tag.</p>
+
+<dust-demo templatename="helpers_math_output">
+    <dust-demo-template showtemplatename="true">
+        There is {@math key=100 method="subtract" operand=progress/}% left to do.
+    </dust-demo-template>
+    <dust-demo-json>
+        {
+        "progress": 70
+        }
+    </dust-demo-json>
+</dust-demo>
+
+<h2 id="debugging-with-contextdump">Debugging with <code>@contextDump</code></h2>
+
+<p>The <code>{@contextDump}</code> helper outputs the current context portion of the JSON data model to the output stream. This can help with debugging if you suspect the context data is not as expected or you aren’t sure what the current context is.</p>
+
+<p>You can set <code>key="full"</code> to print the full context, and <code>to="console"</code> to print to the console.</p>
+
+<p>Remove this helper when you are done debugging.</p>
+
+<dust-demo templatename="helpers_contextdump">
+    <dust-demo-template showtemplatename="true">
+        {#houses.gryffindor}
+        {! Default: key="current" and to="output" !}
+        {@contextDump/}
+        {! Check your console for the full context !}
+        {@contextDump key="full" to="console"/}
+        {/houses.gryffindor}
+    </dust-demo-template>
+    <dust-demo-json>
+        {
+        "houses": {
+        "gryffindor": {
+        "founder": "Godric Gryffindor"
+        },
+        "hufflepuff": {
+        "founder": "Helga Hufflepuff"
+        }
+        }
+        }
+    </dust-demo-json>
+</dust-demo>
+
+<h1 id="adding-new-helpers">Adding New Helpers</h1>
+
+<p>Helpers are written in the same way as <a href="/guides/context-helpers">context helpers</a>. Once you’ve written your helper, attach it to the <code>dust.helpers</code> object.</p>
+
+<pre><code class="language-js">function yell(chunk, context, bodies, params) {
+    return chunk.tap(function(data) {
+    return data.toUpperCase();
+    }).render(bodies.block, context).untap();
+    }
+    dust.helpers.yell = yell;
+</code></pre>

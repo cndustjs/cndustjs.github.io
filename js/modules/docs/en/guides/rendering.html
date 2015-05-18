@@ -1,0 +1,153 @@
+
+<p>In the <a href="/guides/getting-started/">Getting Started</a> guide, you learned how to write Dust templates. Now, let’s look at how to use your templates to render pages.</p>
+
+<h2 id="compile-load-and-render">Compile, Load, and Render</h2>
+
+<ul>
+    <li>Before you can use your template, it must be compiled into a Javascript function.</li>
+    <li>After you’ve gotten a compiled template, you need to register it with Dust so you can refer to it by name.</li>
+    <li>Finally, you can use the template’s name to render or stream it to the client.</li>
+</ul>
+
+<p><strong>Warning:</strong> Compiling a template is much slower than rendering it, so when it’s time to deploy to production, you should precompile your templates as part of your build process.</p>
+
+<p>We’ll look at how to compile, load, and render templates in several different ways.</p>
+
+<h3 id="browser-basic">Browser: Basic</h3>
+
+<p><strong>Warning:</strong> Although compiling directly in the browser can be useful during development, you should not do it on your live site or pages will render slowly.</p>
+
+<p>In addition, access to the functions <code>dust.compile</code> and <code>dust.renderSource</code> in the browser requires that you include <code>dust-full.js</code>, which is larger than <code>dust-core.js</code>.</p>
+
+<pre><code class="language-js">&lt;script type="text/dust" id="hello"&gt;Hello {world}!&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+    var src = document.getElementById('hello').textContent;
+    // Compile the template under the name 'hello'
+    var compiled = dust.compile(src, 'hello');
+    // Register the template with Dust
+    dust.loadSource(compiled);
+    // Render the template
+    dust.render('hello', { world: "Earth" }, function(err, out) {
+    // `out` contains the rendered output.
+    document.getElementById('output').textContent = out;
+    });
+    &lt;/script&gt;
+</code></pre>
+
+<p>As a shortcut, you can use <code>dust.renderSource</code>:</p>
+
+<pre><code class="language-js">// compiles, loads, and renders
+    dust.renderSource(src, { world: "Alpha Centauri" }, function(err, out) { ... });
+</code></pre>
+
+<p>As of Dust 2.7.0, a template name is optional when compiling a template. <code>dust.loadSource</code> will return a template function that you can pass directly to <code>dust.render</code>.</p>
+
+<pre><code class="language-js">var compiled = dust.compile(src);
+    var tmpl = dust.loadSource(compiled);
+    dust.render(tmpl, { world: "Betelgeuse" }, function(err, out) { ... });
+</code></pre>
+
+<h3 id="browser-precompiled-templates">Browser: Precompiled Templates</h3>
+
+<pre><code class="language-js">&lt;!-- precompiled templates --&gt;
+    &lt;script type="text/javascript" src="/lib/templates.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+    // The templates are already registered, so we are ready to render!
+    dust.render('hello', { world: "Saturn" }, function(err, out) {
+    document.getElementById('output').textContent = out;
+    })
+    &lt;/script&gt;
+</code></pre>
+
+<h3 id="browser-amd-requirejs">Browser: AMD (Require.js)</h3>
+
+<p>First, read the guide on <a href="http://localhost:4000/guides/setup/#amd">loading Dust as an AMD module</a>. You must have Dust version 2.6.0 or higher.</p>
+
+<p>You can compile your templates as AMD modules by setting <code>dust.config.amd</code> to <code>true</code>. The easiest way to create AMD templates is by using <code>dustc</code> with the <code>--amd</code> flag. (To learn how to use <code>dustc</code>, see the <a href="/docs/dustc-api"><code>dustc</code> docs</a>.)</p>
+
+<p>If a template is not included via <code>require</code>, Dust will attempt to load it by passing the template’s name to <code>require</code>. To make use of this feature, templates should be compiled with names that an AMD loader would expect. For example, a template located at <code>tmpl/home/main.js</code> must be named <code>tmpl/home/main</code> for Dust to load it correctly. If you use the <code>dustc</code> compiler this is handled for you.</p>
+
+<pre><code class="language-js">&lt;script src="r.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+    define.amd.dust = true;
+    require(["lib/dust-core"], function(dust) {
+    dust.render('tmpl/hello', { world: "Jupiter" }, function(err, out) {
+    // dust will call `require(['tmpl/hello'])` since that template isn't loaded yet
+    });
+    });
+    &lt;/script&gt;
+</code></pre>
+
+<p>You can preload templates by calling <code>require</code> yourself. As of Dust 2.7.0, you can pass the template object directly to <code>dust.render</code> instead of a template name.</p>
+
+<pre><code class="language-js">require(["lib/dust-core", "tmpl/hello"], function(dust, helloTemplate) {
+    // Dust &gt;= 2.6.0
+    dust.render('tmpl/hello', { world: "Mars" }, function(err, out) { ... });
+    // Dust &gt;= 2.7.0
+    dust.render(helloTemplate, { world: "Pluto" }, function(err, out) { ... });
+    })
+</code></pre>
+
+<h3 id="node-basic">Node: Basic</h3>
+
+<p><strong>Warning:</strong> Although compiling directly on the server can be useful during development, you should not do it on your live site or pages will render slowly.</p>
+
+<pre><code class="language-js">var src = fs.readFileSync('/views/hello.dust', 'utf8');
+    var compiled = dust.compile(src, 'hello');
+    dust.loadSource(compiled);
+    dust.render('hello', { world: "Venus" }, function(err, out) {
+    // `out` contains the rendered output.
+    console.log(out);
+    });
+</code></pre>
+
+<h3 id="node-load-precompiled-templates">Node: Load Precompiled Templates</h3>
+
+<pre><code class="language-js">// Pre-2.7
+    fs.readFile(templateName + '.js', { encoding: 'utf8' }, function(err, data) {
+    dust.loadSource(data);
+    dust.render(templateName, {}, function(err, out) {
+    console.log(out);
+    });
+    });
+</code></pre>
+
+<pre><code class="language-js">// Precompile as CommonJS modules-- as of Dust 2.7
+    app.get('/hello', function(req, res) {
+    var tmpl = require('./views/hello.js')(dust);
+    tmpl({world: 'Neptune'}, function(err, out) {
+    res.send(out);
+    });
+    });
+</code></pre>
+
+<h3 id="node-dynamically-load-templates">Node: Dynamically Load Templates</h3>
+
+<p>For a production application with more than a few templates, it’s best to tell Dust how to load templates rather than loading them all manually. To do this, you must <a href="/guides/onload/">configure a <code>dust.onLoad</code> function</a>.</p>
+
+<h2 id="disable-caching">Disable Caching</h2>
+
+<p>Once Dust has registered a template, it won’t try to load it again. This is great for performance, but makes it hard to make changes to a template and reload to see them.</p>
+
+<p>As of Dust 2.7.0, you can set <code>dust.config.cache</code> to <code>false</code> to disable the cache in development, so Dust will try to reload the template every time.</p>
+
+<h2 id="dust-and-expressjs">Dust and Express.js</h2>
+
+<p>Many developers want to use Dust to render pages from their Node server using <a href="http://expressjs.com">Express</a>. There are several Express rendering engines for Dust that handle template loading, compiling, and caching for you. Among them are:</p>
+
+<ul>
+    <li><a href="http://npmjs.com/package/adaro">Adaro</a>, part of the <a href="http://krakenjs.com/">Kraken</a> framework</li>
+    <li><a href="http://npmjs.com/package/hoffman">Hoffman</a>, with good support for streaming</li>
+    <li><a href="http://npmjs.com/package/klei-dust">klei-dust</a>, which supports relative paths for partials</li>
+    <li><a href="https://www.npmjs.com/package/consolidate">consolidate</a>, which also supports many other engines</li>
+</ul>
+
+<h2 id="precompiling-templates">Precompiling Templates</h2>
+
+<p>If you’re not using an Express view engine, the best way to use Dust is to compile templates as part of your build process. Some of the most common ways to accomplish this are:</p>
+
+<ul>
+    <li>Using <a href="/docs/dustc-api"><code>dustc</code>, the command-line compiler</a> (with the <code>--watch</code> option during development)</li>
+    <li>Using a <a href="http://gruntjs.com">Grunt</a> plugin like <a href="https://github.com/STAH/grunt-dustjs">grunt-dustjs</a></li>
+    <li>Using a <a href="http://gulpjs.com">Gulp</a> plugin like <a href="https://www.npmjs.com/package/gulp-dust">gulp-dust</a></li>
+</ul>

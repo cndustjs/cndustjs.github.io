@@ -1,0 +1,138 @@
+
+<p>Dust refers to the data used to render a template as a <strong>context</strong>. The context is modelled as a <strong>stack</strong> of Javascript objects, arrays, and literals. Dust can search multiple layers of the stack, popping off the top objects and looking below.</p>
+
+<p>In this example, notice how Dust moves “up” the context stack.</p>
+
+<ul>
+    <li>The context is set to a single child inside the <code>{#children}</code> section.</li>
+    <li>Dust finds the child’s <code>firstName</code> at that context level.</li>
+    <li>Dust can’t find a <code>lastName</code> at the child’s context level, so it moves up one level and searches again.</li>
+</ul>
+
+<dust-demo templatename="search-upwards">
+    <dust-demo-template showtemplatename="true">
+        Parent: {firstName} {lastName}{~n}
+        Children: {#children}{firstName} {lastName} {/children}
+    </dust-demo-template>
+    <dust-demo-json>{
+        "firstName": "John",
+        "lastName": "Smith",
+        "children": [
+        { "firstName": "Alice" },
+        { "firstName": "Bobby" },
+        { "firstName": "Charlie" }
+        ]
+        }</dust-demo-json>
+</dust-demo>
+
+<h2 id="pushing-and-popping-context">Pushing and Popping Context</h2>
+
+<p>You may add a new level of context to the top of the context stack by using <code>context.push</code>. The existing context <strong>is not modified</strong>. Instead, pushing returns a new context.</p>
+
+<p>As of Dust 2.6.2, <code>context.pop</code> removes the topmost level of the context and returns it.<br />
+    The existing context <strong>is modified</strong>.</p>
+
+<p>The special reference <code>{.}</code> always refers to the current context.</p>
+
+<dust-demo templatename="push">
+    <dust-demo-template showtemplatename="true">
+        Current context: {.}{~n}
+        Dust can search upwards: {foo}{~n}
+        But, it can't search up and then down: {two}{~n}
+        So you need to search up, and then start a new search: {#one}{two}{/one}{~n}
+        Or, you can search up, and then do a dotted lookup: {one.two}
+    </dust-demo-template>
+    <dust-demo-json>(function() {
+
+        var context = dust.makeBase();
+        var newContext = context.push({ "foo": "bar", "one": { "two": "Hello!" } })
+        .push("level2")
+        .push("level3")
+        .push("level4")
+        .push("this one gets popped off");
+
+        newContext.pop();
+
+        return newContext;
+
+        })()</dust-demo-json>
+</dust-demo>
+
+<h2 id="context-globals">Context Globals</h2>
+
+<p>When creating a context, you can provide a second “global” context that is always accessible, no matter where Dust is in the stack. To add a global context, call <code>dust.makeBase</code> (alias as of Dust 2.7.1: <code>dust.context</code>) to create a Context object. Then, pass that Context object to <code>dust.render</code>.</p>
+
+<p>The global context is the lowest level of the stack, so it will be shadowed by any references that are defined at a higher level.</p>
+
+<dust-demo templatename="global">
+    <dust-demo-template showtemplatename="true">
+        Hello {global} {name}!{~n}
+        {#friend}Hello {global} {name}!{/friend}
+    </dust-demo-template>
+    <dust-demo-json>(function() {
+
+        var context = dust.makeBase({ "global": "global", "name": "World" });
+
+        return context.push({
+        "friend": {
+        "name": "Dusty"
+        }
+        });
+
+        }())</dust-demo-json>
+</dust-demo>
+
+<h2 id="context-options-dust-271">Context Options (Dust 2.7.1)</h2>
+
+<p>Context options are not visible to a template. You can attach them to the context as a way to pass along request-scoped data for use in your application (think Express locals that aren’t visible to a template).</p>
+
+<p>Dust will pass any context options to your <a href="/guides/onload/"><code>dust.onLoad</code> function</a> when trying to load uncached templates.</p>
+
+<p>To add context options, pass an object as the second argument of <code>dust.makeBase</code> / <code>dust.context</code>.</p>
+
+<pre><code class="language-js">var context = dust.context(null, { lang: 'en' });
+    context.options.lang === 'en'; // true
+</code></pre>
+
+<h2 id="special-values-in-context">Special Values in Context</h2>
+
+<p>Objects, Arrays, strings, numbers, and other literals are retrieved from the context as-is. Dust treats other context values specially:</p>
+
+<h3 id="functions">Functions</h3>
+
+<p>Instead of returning a function to be rendered by the template, Dust first executes the function and passes its return value to the template. The function is invoked with some special Dust parameters to give it great control over the rendering process.</p>
+
+<p>These special functions are collectively referred to as <strong>context helpers</strong>. For information on how to write context helpers, see the <a href="/guides/context-helpers">Context Helpers guide</a>.</p>
+
+<h3 id="promises-dust-262">Promises (Dust 2.6.2)</h3>
+
+<p>As of Dust 2.6.2, when Dust encounters a Promise in the context, it waits for the Promise to be resolved or rejected before providing the value to the template.</p>
+
+<p>If the Promise is a reference, it is output directly. If the Promise is rejected, the reference does not output.</p>
+
+<p>If the Promise is a section, its return value is pushed onto the context stack. If the Promise is rejected, Dust looks for an <code>{:error}</code> block in the section and renders that instead.</p>
+
+<p>You can even refer directly to keys in the eventual return value of a Promise, even if the Promise has yet to resolve.</p>
+
+<p><strong>Note:</strong> Dust requires Promises you provide in your context to be <a href="https://github.com/promises-aplus/promises-spec/blob/master/implementations.md">Promises/A+-compliant</a> with respect to their <code>.then</code> method. For example, versions of jQuery prior to 1.8 do not provide compliant Promises and cannot be used properly with Dust.</p>
+
+<dust-demo templatename="promise">
+    <dust-demo-template showtemplatename="true">
+        Your IP address is {jsonTest.ip}
+    </dust-demo-template>
+    <dust-demo-json>
+        {
+        "jsonTest": $.getJSON("http://ip.jsontest.com/")
+        }
+    </dust-demo-json>
+</dust-demo>
+
+<h3 id="streams-dust-270">Streams (Dust 2.7.0)</h3>
+
+<p>As of Dust 2.7.0, Dust can read from Node-like Streams in the context. When Dust finds a Stream, it attaches <code>data</code>, <code>error</code>, and <code>end</code> listeners.</p>
+
+<p>A Buffer- or string-based Stream can be accessed in the template as a reference or a section. An Object-based Stream should only be accessed as a section.</p>
+
+<p>When a Stream is accessed as a section, Dust flushes each iteration immediately upon completion. This is useful if you are streaming out a large amount of data, since the browser can begin rendering the response immediately (in conjunction with <code>dust.stream</code>). Otherwise, Dust waits for the <code>end</code> event to fire before flushing the chunk.</p>
+
+<p>If a Stream never emits an <code>end</code> or <code>error</code> event, the template will never finish rendering. Depending on your Stream implementation, you may wish to safeguard against a poorly-written stream by forcefully ending the stream after a timeout.</p>

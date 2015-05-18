@@ -1,35 +1,29 @@
-<h1 id="installing-dust">Installing Dust</h1>
+<h1 id="installing-dust">安装dust</h1>
 
-<h2 id="npm">npm</h2>
+<h2 id="npm">通过npm安装</h2>
 
-<p>To install as a Node module:</p>
 
 <pre><code class="language-bash">npm install --save --production dustjs-linkedin
-
-    # If you want the core helpers addon
-    npm install --save --production dustjs-helpers
+npm install --save --production dustjs-helpers
 </code></pre>
 
-<p>Dust should work with any version of Node or io.js newer than 0.8.12.</p>
+<p>Dust需要Node 0.8.12以上的版本</p>
 
-<p>The command-line compiler is located at <code>./node_modules/.bin/dustc</code>. To make the compiler available
-    globally, run <code>npm install</code> with the <code>-g</code> flag.</p>
+<p>编译命令dustc在<code>./node_modules/.bin/dustc</code>.如果要在全局使用dustc命令,请将dustjs通过 <code>npm install -g</code> 安装为全局.</p>
 
-<h2 id="bower">Bower</h2>
+<h2 id="bower">通过Bower安装</h2>
 
-<p>To install using Bower:</p>
 
 <pre><code class="language-bash">bower install dustjs-linkedin
 </code></pre>
 
-<p>Dust is compatible with IE7+ and all modern browsers.</p>
+<p>Dust兼容于： IE7+ ， 各种现代浏览器.</p>
 
-<h2 id="download">Download</h2>
+<h2 id="download">下载</h2>
 
-<p>You can manually download current and past versions of Dust on the <a
-        href="https://github.com/linkedin/dustjs/releases">GitHub releases page</a>.</p>
+<p>可以从这里 <a target="_blank" href="https://github.com/linkedin/dustjs/releases">dustjs的releases</a>下载到最新版本和相关的历史版本</p>
 
-<h1 id="loading-dust">Loading Dust</h1>
+<h1 id="loading-dust">加载Dust</h1>
 
 <h2 id="node">Node</h2>
 
@@ -38,39 +32,38 @@
 
 <h2 id="browser">Browser</h2>
 
-<p>Include <code>dust-core.min.js</code> or <code>dust-full.min.js</code> on your page. If you will be compiling
-    templates in the browser, use <code>dust-full.min.js</code>.</p>
+<p>在页面中引用 <code>dust-core.min.js</code> or <code>dust-full.min.js</code>文件.</p>
+<p>如果在浏览器中编译模板，请引用 <code>dust-full.min.js</code>.（注：如果dust模板已经过预编译处理，只需要引用dust-core.min.js）</p>
 
 <h2 id="amd">AMD</h2>
 
-<p>As of Dust 2.6.0, you can load Dust using an AMD-compatible loader such as require.js.</p>
+<p>自Dust 2.6.0起, 你可以用AMD适配的加载方式引用，比如使用 require.js</p>
 
-<p>To maintain backwards compatibility, you must enable a config flag to tell Dust to register itself as a named AMD
-    module (<a href="http://requirejs.org/docs/jquery.html">in the same way jQuery works</a>).</p>
+<p>为了保持向后兼容性,你必须通过config配置，告诉Dust将自身注册为AMD模块。 (<a href="http://requirejs.org/docs/jquery.html">jQuery用了同样的方式注册为AMD模块</a>).</p>
 
 <pre><code>define.amd.dust = true;
 </code></pre>
 
-<p>After you’ve done this, you can load <code>dust-core.js</code> or <code>dust-full.js</code> as a module.</p>
+<p>在完成配置后，你可以用AMD模块的方式加载 <code>dust-core.js</code> or <code>dust-full.js</code>.</p>
 
 <pre><code>&lt;script src="r.js"&gt;&lt;/script&gt;
-    &lt;script type="text/javascript"&gt;
+&lt;script type="text/javascript"&gt;
     define.amd.dust = true;
     require(["lib/dust-full"], function(dust) {
-    dust.render(...);
+        dust.render(...);
     });
-    &lt;/script&gt;
+&lt;/script&gt;
 </code></pre>
 
 <h3 id="helpers">Helpers</h3>
 
-<p>If you are using <code>dustjs-helpers</code> 1.6.0 or newer, the helpers also register themselves as an anonymous AMD
-    module. It seems to work best if you require the helpers after Dust has already been loaded.</p>
+<p>如果你使用<code>dustjs-helpers</code> 1.6.0以上的版本, dust-helpers 也被注册为AMD模块. 如果在Dust已经加载后，require了Helper模块，即可很好的使用了。
+    It seems to work best if you require the helpers after Dust has already been loaded.</p>
 
 <pre><code class="language-js">define.amd.dust = true;
-    require(["lib/dust-full"], function(dust) {
+require(["lib/dust-full"], function(dust) {
     require(["lib/dust-helpers"], function() {
-    // dust helpers are available when you call dust.render()
+        // dust helpers are available when you call dust.render()
     });
-    });
+});
 </code></pre>

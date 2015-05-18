@@ -1,0 +1,32 @@
+
+<h2 id="logic">Logic</h2>
+
+<p>The <a href="https://github.com/linkedin/dustjs-helpers">Dust core logic helpers</a> provide basic logic for templates that most apps will need. The helpers include logical comparisons (equal, less than, greater than), simple math operations, <a href="/guides/dust-helpers">and more</a>.</p>
+
+<p>Although Dust is not completely logicless, so that you can get around some basic hurdles, it is still wise not to bloat templates with too much “business logic.” If there’s too much logic in a Dust template, it will be hard to read and hard to maintain. This will just increase the difficulty of maintaining your template. Let the server handle the business logic, or write <a href="/guides/context-helpers">context helpers</a> to move logic out of your templates.</p>
+
+<h2 id="debugging">Debugging</h2>
+
+<p>Debugging can be turned on by setting <code>dust.debugLevel</code> to “DEBUG”, “INFO”, “WARN”, or “ERROR” before you render the template.</p>
+
+<ul>
+    <li>“DEBUG” will not filter out any log messages, while every level above will filter out logs below them in severity.</li>
+    <li>“DEBUG” and “INFO” messages may help you debug behavior in your templates, but are safe to ignore.</li>
+    <li>“WARN” messages notify you of possibly-unintended behavior that will not cause your template rendering to fail.</li>
+    <li>“ERROR” messages are fatal and signify that your template render has failed.</li>
+    <li>During development, turn logging to “WARN” or “INFO” to help catch problems with your templates.</li>
+</ul>
+
+<pre><code class="language-js">if (process.env.NODE_ENV === 'development') {
+    dust.debugLevel = "INFO";
+    }
+</code></pre>
+
+<p>When running a Node app via the command line, you can set the environment variable <code>DEBUG</code> to <code>dust</code> to automatically turn on debugging.</p>
+
+<pre><code>$ DEBUG=dust node app.js
+</code></pre>
+
+<h2 id="linting">Linting</h2>
+
+<p>You can run <a href="https://github.com/smfoote/Swiffer.js">Swiffer</a>, the Dust linter, to get warnings about possible security holes, parse errors, and coding-style guidelines.</p>

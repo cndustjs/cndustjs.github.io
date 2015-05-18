@@ -1,0 +1,45 @@
+
+<h2 id="dust-filters">Dust Filters</h2>
+
+<h3 id="filter-call">Filter call</h3>
+
+<pre><code>{myReference|myFilter}
+</code></pre>
+
+<h3 id="function-definition">Function definition</h3>
+<pre><code>dust.filters.myFilter = function(value) {
+    /* Modify the value */
+    return value;
+    }
+</code></pre>
+
+<h3 id="parameters">Parameters</h3>
+<ul>
+    <li>value: The value that is used in the dust reference.  This is the left hand argument in the filter call above.</li>
+</ul>
+
+<h3 id="return-value">Return Value</h3>
+<ul>
+    <li>{String} The modified value</li>
+</ul>
+
+<h3 id="example">Example</h3>
+<p>In this example, we will define a ‘unicorn’ filter, which takes a string and replaces all instances of the word “unicorn” with “horse”, because we don’t believe in unicorns.</p>
+
+<h4 id="javascript-definition-of-a-unicorn-filter">JavaScript definition of a Unicorn filter</h4>
+<pre><code>dust.filters.unicorn = function(value) {
+    if (typeof value === 'string') {
+    return value.replace('unicorn', 'horse');
+    }
+    return value;
+    };
+</code></pre>
+
+<h4 id="unicorn-filter-usage-in-a-dust-template">Unicorn filter usage in a dust template</h4>
+<pre><code>{! JSON context: {
+    myInput: 'I love unicorns'
+    }
+    !}
+    {myInput|unicorn}
+    {! outputs 'I love horses' !}
+</code></pre>

@@ -1,0 +1,43 @@
+
+<p>Templates can include other templates by using partials. Rather than specifying the templates to include in a controller or configuration file, Dust allows you to write your partials inline as part of your template.</p>
+
+<p>A template includes a partial using Dust’s <a href="/docs/syntax/#partial">partial syntax</a>. The partial’s name is the name that was used <a href="/guides/getting-started/#compiling-dust-templates">to compile the template</a>.</p>
+
+<pre><code>{&gt;"template-name"/}
+</code></pre>
+
+<p>A partial relies on the JSON context of the parent template invoking it. Like <a href="/guides/getting-started/#sections">sections</a>, partials also accept parameters that add extra references. By passing more data into the partial using parameters, you can build components that are customized to different contexts without relying on their parent’s data. For example, there might be several versions of a header that you wish to include, which can be controlled using parameters:</p>
+
+<pre><code>{&gt;"header" mode="classic"/}
+</code></pre>
+
+<p>Again, as in sections, inline parameters passed to a partial will not override the current context if a reference of the same name already exists.</p>
+
+<dust-demo templatename="disney-park" hideoutput="true">
+    <dust-demo-template showtemplatename="true">
+        <p>{?isGreeting}Greetings{:else}Goodbye{/isGreeting} from {parkName}, The {qualifier} Place on Earth!</p>
+    </dust-demo-template>
+</dust-demo>
+
+<dust-demo templatename="disney">
+    <dust-demo-template showtemplatename="true">
+        {#parks}
+        {&gt;"disney-park" parkName=name qualifier=qualifier/}{~n}
+        {/parks}
+    </dust-demo-template>
+    <dust-demo-json>
+        {
+        "isGreeting": true,
+        "parks": [
+        {
+        "name": "Disneyland",
+        "qualifier": "Happiest"
+        },
+        {
+        "name": "Disney World Magic Kingdom",
+        "qualifier": "Most Magical"
+        }
+        ]
+        }
+    </dust-demo-json>
+</dust-demo>
